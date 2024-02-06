@@ -169,6 +169,7 @@ const view = async (req, res) => {
       {
         $addFields: {
           senderName: { $concat: ["$users.firstName", " ", "$users.lastName"] },
+
           deleted: {
             $cond: [
               { $eq: ["$contact.deleted", false] },
@@ -282,4 +283,89 @@ const viewAllCalls = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-module.exports = { add, index, view, viewAllCalls };
+//view specific user's calls api-------------------------
+const viewUserCalls = async (req, res) => {
+  const sender = req.params.createBy;
+  try {
+    let calls = await PhoneCall.find();
+
+    if (!calls || calls.length === 0) {
+      return res.status(404).json({ message: "No data found." });
+    }
+
+    let response = await PhoneCall.aggregate([
+      {
+        $match: {
+          sender: new mongoose.Types.ObjectId(sender),
+        },
+      },
+      {
+        $lookup: {
+          from: "contacts",
+          localField: "createBy",
+          foreignField: "_id",
+          as: "contact",
+        },
+      },
+      {
+        $lookup: {
+          from: "leads", // Assuming this is the collection name for 'leads'
+          localField: "createByLead",
+          foreignField: "_id",
+          as: "createByrefLead",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "sender",
+          foreignField: "_id",
+          as: "users",
+        },
+      },
+      {
+        $addFields: {
+          senderName: {
+            $concat: [
+              { $arrayElemAt: ["$users.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$users.lastName", 0] },
+            ],
+          },
+          recipientName: {
+            $cond: {
+              if: { $gt: [{ $size: "$contact" }, 0] },
+              then: {
+                $concat: [
+                  { $arrayElemAt: ["$contact.firstName", 0] },
+                  " ",
+                  { $arrayElemAt: ["$contact.lastName", 0] },
+                ],
+              },
+              else: {
+                $cond: {
+                  if: { $gt: [{ $size: "$createByrefLead" }, 0] },
+                  then: { $arrayElemAt: ["$createByrefLead.leadName", 0] },
+                  else: "",
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          users: 0,
+          contact: 0,
+          createByrefLead: 0,
+        },
+      },
+    ]);
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+module.exports = { add, index, view, viewAllCalls, viewUserCalls };

@@ -6,8 +6,8 @@ const jwt = require("jsonwebtoken");
 const adminRegister = async (req, res) => {
   console.log(req.body);
   try {
-    const { username, password, firstName, lastName, phoneNumber } = req.body;
-    const user = await User.findOne({ username: username });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
     if (user) {
       return res
         .status(400)
@@ -17,13 +17,12 @@ const adminRegister = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
       // Create a new user
       const user = new User({
-        username,
+        email,
         password: hashedPassword,
-        firstName,
-        lastName,
-        phoneNumber,
         role: "admin",
       });
+
+      console.log(user, "usersss");
       // Save the user to the database
       await user.save();
       res.status(200).json({ message: "Admin created successfully" });
@@ -38,12 +37,13 @@ const adminRegister = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { username, password, firstName, lastName, phoneNumber } = req.body;
+    console.log(req.body, "data------------");
     const user = await User.findOne({ username: username });
 
     if (user) {
       return res
         .status(401)
-        .json({ message: "user already exist please try another email" });
+        .json({ message: "user already exist please try another username" });
     } else {
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,11 +56,15 @@ const register = async (req, res) => {
         phoneNumber,
         createdDate: new Date(),
       });
+
+      console.log(user, "user to be save------------");
+
       // Save the user to the database
       await user.save();
       res.status(200).json({ message: "User created successfully" });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error });
   }
 };
@@ -130,13 +134,13 @@ const deleteMany = async (req, res) => {
 
 const edit = async (req, res) => {
   try {
-    let { username, firstName, lastName, phoneNumber } = req.body;
+    let { email, firstName, lastName, phoneNumber } = req.body;
 
     let result = await User.updateOne(
       { _id: req.params.id },
       {
         $set: {
-          username,
+          email,
           firstName,
           lastName,
           phoneNumber,
@@ -156,7 +160,10 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     // Find the user by email
-    const user = await User.findOne({ email, deleted: false }).populate({
+    const user = await User.findOne({
+      username: email,
+      deleted: false,
+    }).populate({
       path: "roles",
     });
     if (!user) {

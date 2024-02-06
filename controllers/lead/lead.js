@@ -48,6 +48,18 @@ const getAllLeads = async (req, res) => {
     res.status(400).json({ error: "Failed to Fetch Lead " });
   }
 };
+//Api for fetching specific user leads--------------------------
+const getUserLeads = async (req, res) => {
+  const createBy = req.params;
+  try {
+    const allleads = await Lead.find(createBy);
+
+    res.status(200).json(allleads);
+  } catch (err) {
+    console.error("Failed to Fetch Lead :", err);
+    res.status(400).json({ error: "Failed to Fetch Lead " });
+  }
+};
 
 const add = async (req, res) => {
   try {
@@ -90,7 +102,7 @@ const view = async (req, res) => {
     { $match: { createByLead: lead._id } },
     {
       $lookup: {
-        from: "leads", // Assuming this is the collection name for 'leads'
+        from: "leads",
         localField: "createByLead",
         foreignField: "_id",
         as: "createByrefLead",
@@ -301,6 +313,7 @@ const exportLead = async (req, res) => {};
 module.exports = {
   index,
   add,
+  getUserLeads,
   createLead,
   getAllLeads,
   view,

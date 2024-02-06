@@ -71,12 +71,31 @@ const view = async (req, res) => {
 
 //view all properties api-------------------------
 const viewAllProperties = async (req, res) => {
-  let properties = await Property.find();
+  try {
+    let properties = await Property.find();
 
-  if (!properties) return res.status(404).json({ message: "no Data Found." });
-  res.status(200).json({ properties });
+    if (!properties) return res.status(404).json({ message: "no Data Found." });
+    res.status(200).json({ properties });
+  } catch (error) {
+    console.error("Failed to fetch Property:", error);
+    res.status(400).json({ error: "Failed to fetch Property" });
+  }
+};
+//view specific users's properties api-------------------------
+const viewUserProperties = async (req, res) => {
+  const createBy = req.params;
+  try {
+    let properties = await Property.find(createBy);
+
+    if (!properties) return res.status(404).json({ message: "no Data Found." });
+    res.status(200).json({ properties });
+  } catch (error) {
+    console.error("Failed to fetch Property:", error);
+    res.status(400).json({ error: "Failed to fetch Property" });
+  }
 };
 
+// -----------------------
 const deleteData = async (req, res) => {
   try {
     const property = await Property.deleteOne({ _id: req.params.id });
@@ -366,4 +385,5 @@ module.exports = {
   FloorPlans,
   PropertyDocumentsStorage,
   PropertyDocuments,
+  viewUserProperties,
 };

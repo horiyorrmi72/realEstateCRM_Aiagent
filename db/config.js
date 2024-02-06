@@ -16,13 +16,13 @@ const connectDB = async (DATABASE_URL, DATABASE) => {
       const phoneNumber = 7874263694;
       const firstName = "Samoytech";
       const lastName = "Solutions";
-      const email = "admin@gmail.com";
+      const username = "admin@gmail.com";
       const password = "admin123";
       const hashedPassword = await bcrypt.hash(password, 10);
       // Create a new user
       const user = new User({
         _id: new mongoose.Types.ObjectId("64d33173fd7ff3fa0924a109"),
-        email,
+        username,
         password: hashedPassword,
         firstName,
         lastName,

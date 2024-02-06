@@ -96,7 +96,7 @@ const view = async (req, res) => {
       {
         $addFields: {
           // attendesArray: '$contact.email',
-          createdByName: "$users.email",
+          createdByName: "$users.username",
         },
       },
       {
@@ -133,7 +133,49 @@ const viewAllMeetings = async (req, res) => {
       },
       {
         $addFields: {
-          createdByName: { $arrayElemAt: ["$users.email", 0] },
+          createdByName: { $arrayElemAt: ["$users.username", 0] },
+        },
+      },
+      {
+        $project: {
+          users: 0,
+        },
+      },
+    ]);
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+//view specific user's meetings api-------------------------
+const viewUserMeetings = async (req, res) => {
+  const createdBy = req.params.createBy;
+  try {
+    let meetings = await MeetingHistory.find();
+
+    if (!meetings || meetings.length === 0) {
+      return res.status(404).json({ message: "No data found." });
+    }
+
+    let response = await MeetingHistory.aggregate([
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(createdBy),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "users",
+        },
+      },
+      {
+        $addFields: {
+          createdByName: { $arrayElemAt: ["$users.username", 0] },
         },
       },
       {
@@ -159,4 +201,11 @@ const deleteMeeting = async (req, res) => {
   }
 };
 
-module.exports = { add, index, view, viewAllMeetings, deleteMeeting };
+module.exports = {
+  add,
+  index,
+  view,
+  viewAllMeetings,
+  deleteMeeting,
+  viewUserMeetings,
+};

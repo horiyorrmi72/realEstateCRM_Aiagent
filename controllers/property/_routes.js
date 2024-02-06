@@ -9,6 +9,7 @@ router.post("/add", auth, property.add);
 router.post("/addMany", auth, property.addMany);
 router.get("/view/:id", auth, property.view);
 router.get("/viewallproperties", auth, property.viewAllProperties);
+router.get("/viewuserproperty/:createBy", auth, property.viewUserProperties);
 router.patch("/edit/:id", auth, property.edit);
 router.delete("/delete/:id", auth, property.deleteData);
 router.post("/deleteMany", auth, property.deleteMany);

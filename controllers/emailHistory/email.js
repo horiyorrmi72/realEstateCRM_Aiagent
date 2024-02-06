@@ -177,7 +177,7 @@ const view = async (req, res) => {
       { $match: { "users.deleted": false } },
       {
         $addFields: {
-          senderEmail: "$users.email",
+          senderEmail: "$users.username",
           deleted: {
             $cond: [
               { $eq: ["$createByRef.deleted", false] },
@@ -305,5 +305,91 @@ const viewAllEmails = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+//view specific user's emails api-------------------------
+const viewUserEmails = async (req, res) => {
+  try {
+    const sender = req.params.createBy;
 
-module.exports = { add, index, view, viewAllEmails };
+    let emails = await EmailHistory.find();
+
+    if (!emails || emails.length === 0) {
+      return res.status(404).json({ message: "No data found." });
+    }
+
+    let response = await EmailHistory.aggregate([
+      {
+        $match: {
+          sender: new mongoose.Types.ObjectId(sender),
+        },
+      },
+      {
+        $lookup: {
+          from: "contacts",
+          localField: "createBy",
+          foreignField: "_id",
+          as: "contact",
+        },
+      },
+      {
+        $lookup: {
+          from: "leads",
+          localField: "createByLead",
+          foreignField: "_id",
+          as: "createByrefLead",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "sender",
+          foreignField: "_id",
+          as: "users",
+        },
+      },
+      {
+        $addFields: {
+          senderName: {
+            $concat: [
+              { $arrayElemAt: ["$users.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$users.lastName", 0] },
+            ],
+          },
+          recipientName: {
+            $cond: {
+              if: { $gt: [{ $size: "$contact" }, 0] },
+              then: {
+                $concat: [
+                  { $arrayElemAt: ["$contact.firstName", 0] },
+                  " ",
+                  { $arrayElemAt: ["$contact.lastName", 0] },
+                ],
+              },
+              else: {
+                $cond: {
+                  if: { $gt: [{ $size: "$createByrefLead" }, 0] },
+                  then: { $arrayElemAt: ["$createByrefLead.leadName", 0] },
+                  else: "",
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          users: 0,
+          contact: 0,
+          createByrefLead: 0,
+        },
+      },
+    ]);
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = { add, index, view, viewAllEmails, viewUserEmails };

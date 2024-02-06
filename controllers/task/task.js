@@ -218,7 +218,7 @@ const view = async (req, res) => {
               else: { $concat: ["$Lead.leadName"] },
             },
           },
-          createByName: "$users.email",
+          createByName: "$users.username",
         },
       },
       { $project: { contact: 0, users: 0, Lead: 0 } },
@@ -277,7 +277,74 @@ const ViewAllTasks = async (req, res) => {
               else: { $concat: ["$Lead.leadName"] },
             },
           },
-          createByName: "$users.email",
+          createByName: "$users.username",
+        },
+      },
+      { $project: { contact: 0, users: 0, Lead: 0 } },
+    ]);
+
+    res.status(200).json({ taskData: tasks });
+  } catch (error) {
+    res.status(400).json({ Error: error.message });
+  }
+};
+
+//view specific user's tasks-----------------------
+const viewUserTasks = async (req, res) => {
+  try {
+    const createById = req.params.createBy;
+    let tasks = await Task.aggregate([
+      {
+        $match: {
+          createBy: new mongoose.Types.ObjectId(createById),
+        },
+      },
+
+      {
+        $lookup: {
+          from: "contacts",
+          localField: "assignmentTo",
+          foreignField: "_id",
+          as: "contact",
+        },
+      },
+      {
+        $lookup: {
+          from: "leads",
+          localField: "assignmentToLead",
+          foreignField: "_id",
+          as: "Lead",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "createBy",
+          foreignField: "_id",
+          as: "users",
+        },
+      },
+      { $unwind: { path: "$contact", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$Lead", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          assignmentToName: {
+            $cond: {
+              if: "$contact",
+              then: {
+                $concat: [
+                  "$contact.title",
+                  " ",
+                  "$contact.firstName",
+                  " ",
+                  "$contact.lastName",
+                ],
+              },
+              else: { $concat: ["$Lead.leadName"] },
+            },
+          },
+          createByName: "$users.username",
         },
       },
       { $project: { contact: 0, users: 0, Lead: 0 } },
@@ -299,4 +366,12 @@ const deleteData = async (req, res) => {
   }
 };
 
-module.exports = { index, add, edit, view, deleteData, ViewAllTasks };
+module.exports = {
+  index,
+  add,
+  edit,
+  view,
+  deleteData,
+  ViewAllTasks,
+  viewUserTasks,
+};

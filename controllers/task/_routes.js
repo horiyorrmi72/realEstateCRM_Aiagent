@@ -8,6 +8,7 @@ router.get("/", auth, task.index);
 router.post("/add", auth, task.add);
 router.get("/view/:id", auth, task.view);
 router.get("/viewalltasks", auth, task.ViewAllTasks);
+router.get("/viewusertasks/:createBy", auth, task.viewUserTasks);
 router.patch("/edit/:id", auth, task.edit);
 router.delete("/delete/:id", auth, task.deleteData);
 

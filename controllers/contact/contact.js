@@ -402,6 +402,19 @@ const viewAllContacts = async (req, res) => {
   }
 };
 
+//Api for fetching specific user contacts--------------------------
+const getUserContacts = async (req, res) => {
+  const createBy = req.params;
+  try {
+    const contactDetails = await Contact.find(createBy);
+
+    res.status(200).json(contactDetails);
+  } catch (err) {
+    console.error("Failed to Fetch Contacts :", err);
+    res.status(400).json({ error: "Failed to Fetch Contacts " });
+  }
+};
+
 module.exports = {
   index,
   add,
@@ -412,5 +425,6 @@ module.exports = {
   deleteData,
   viewAllContacts,
   deleteMany,
+  getUserContacts,
   addMany,
 };

@@ -8,6 +8,7 @@ router.get("/", auth, contact.index);
 router.post("/add", auth, contact.add);
 router.post("/addMany", auth, contact.addMany);
 router.get("/viewallcontacts", auth, contact.viewAllContacts);
+router.get("/viewusercontacts/:createBy", auth, contact.getUserContacts);
 router.post("/add-property-interest/:id", auth, contact.addPropertyInterest);
 router.get("/view/:id", auth, contact.view);
 router.patch("/edit/:id", auth, contact.edit);

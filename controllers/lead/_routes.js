@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/", lead.index);
 router.get("/viewallleads", auth, lead.getAllLeads);
+router.get("/viewuserleads/:createBy", auth, lead.getUserLeads);
 router.post("/add", auth, lead.add);
 router.post("/createlead", auth, lead.createLead);
 router.get("/view/:id", lead.view);
