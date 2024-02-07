@@ -14,6 +14,39 @@ const app = express();
 app.use(bodyParser.json());
 // Set up CORS
 app.use(cors());
+
+app.use(function (req, res, next) {
+  const allowedOrigins = ["*", "http://157.245.98.50:5001"];
+  req.headers.lng_code =
+    req.headers.lang == undefined || req.headers.lang == ""
+      ? "en"
+      : req.headers.lang;
+  if (typeof req.session.user != "undefined" && req.session.user._id) {
+    res.locals.user = req.session.user;
+  }
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  // Website you wish to allow to connect
+
+  // Request methods you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+
+  // Request headers you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type"
+  );
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
 //API Routes
 app.use("/api", route);
 
