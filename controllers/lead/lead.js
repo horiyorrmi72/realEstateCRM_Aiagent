@@ -26,7 +26,6 @@ const index = async (req, res) => {
 const createLead = async (req, res) => {
   try {
     const data = req.body;
-
     console.log(data);
     const insertedLead = await Lead.insertMany(data);
 

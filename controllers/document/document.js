@@ -80,7 +80,7 @@ const file = async (req, res) => {
   try {
     const { filename, folderName, createBy } = req.body;
 
-    const url = req.protocol + "://" + req.get("host");
+    const url = process.env.BASE_URL;
 
     const files = req.files.map((file) => ({
       fileName: filename || file.filename,

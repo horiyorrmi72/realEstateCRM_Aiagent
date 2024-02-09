@@ -178,7 +178,7 @@ const propertyPhoto = async (req, res) => {
       res.status(400).send("No files uploaded.");
       return;
     }
-    const url = req.protocol + "://" + req.get("host");
+    const url = process.env.BASE_URL;
 
     const file = req?.files.map((file) => ({
       img: `${url}/api/property/property-photos/${file.filename}`,
@@ -237,7 +237,7 @@ const VirtualToursorVideos = async (req, res) => {
       res.status(400).send("No files uploaded.");
       return;
     }
-    const url = req.protocol + "://" + req.get("host");
+    const url = process.env.BASE_URL;
 
     const file = req?.files.map((file) => ({
       img: `${url}/api/property/virtual-tours-or-videos/${file.filename}`,
@@ -293,7 +293,7 @@ const FloorPlans = async (req, res) => {
       res.status(400).send("No files uploaded.");
       return;
     }
-    const url = req.protocol + "://" + req.get("host");
+    const url = process.env.BASE_URL;
 
     const file = req?.files.map((file) => ({
       img: `${url}/api/property/floor-plans/${file.filename}`,
@@ -349,7 +349,7 @@ const PropertyDocuments = async (req, res) => {
       res.status(400).send("No files uploaded.");
       return;
     }
-    const url = req.protocol + "://" + req.get("host");
+    const url = process.env.BASE_URL;
 
     const file = req?.files.map((file) => ({
       filename: file.filename,
