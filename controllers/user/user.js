@@ -1,6 +1,7 @@
 const User = require("../../model/schema/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { default: mongoose } = require("mongoose");
 
 // Admin register
 const adminRegister = async (req, res) => {
@@ -96,6 +97,16 @@ const view = async (req, res) => {
     res.status(500).json({ error });
   }
 };
+const viewAllEmployee = async (req, res) => {
+  try {
+    let employeeData = await User.find({ role: "user" });
+    if (employeeData.length === 0)
+      return res.status(404).json({ message: "no Data Found." });
+    res.status(200).json(employeeData);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
 
 let deleteData = async (req, res) => {
   try {
@@ -152,6 +163,32 @@ const edit = async (req, res) => {
   } catch (err) {
     console.error("Failed to Update User:", err);
     res.status(400).json({ error: "Failed to Update User" });
+  }
+};
+const editEmployeeStatus = async (req, res) => {
+  const _id = new mongoose.Types.ObjectId(req.params.id);
+
+  try {
+    // Fetch the user data
+    const employeeData = await User.findOne({ _id });
+
+    if (!employeeData) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const updatedDeletedValue = !employeeData.deleted;
+
+    // Update the user document
+    const result = await User.updateOne(
+      { _id: _id },
+      { $set: { deleted: updatedDeletedValue } }
+    );
+
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Failed to change status :", err);
+    res.status(400).json({ error: "Failed to change status" });
   }
 };
 
@@ -217,4 +254,6 @@ module.exports = {
   deleteData,
   edit,
   changeRoles,
+  viewAllEmployee,
+  editEmployeeStatus,
 };
