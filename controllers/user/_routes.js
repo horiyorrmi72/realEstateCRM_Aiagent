@@ -10,8 +10,10 @@ router.post("/register", user.register);
 router.post("/login", user.login);
 router.post("/deleteMany", auth, user.deleteMany);
 router.get("/view/:id", auth, user.view);
+router.get("/viewallemployee", auth, user.viewAllEmployee);
 router.delete("/delete/:id", auth, user.deleteData);
 router.patch("/edit/:id", auth, user.edit);
+router.patch("/editemployeestatus/:id", user.editEmployeeStatus);
 router.put("/change-roles/:id", auth, user.changeRoles);
 
 module.exports = router;
