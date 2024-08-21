@@ -2,11 +2,124 @@ const Contact = require("../../model/schema/contact");
 const emailHistory = require("../../model/schema/email");
 const MeetingHistory = require("../../model/schema/meeting");
 const phoneCall = require("../../model/schema/phoneCall");
+const noAnsweredCall =  require("../../model/schema/noAnswer");
 const Task = require("../../model/schema/task");
 const TextMsg = require("../../model/schema/textMsg");
 const DocumentSchema = require("../../model/schema/document");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+
+
+//for getting all unaswered call made by the agent to create a new contact
+const getAllAgentContacts = async (req, res) => {
+  try {
+    const unAnsweredCalls = await noAnsweredCall.find().exec();
+    if(!unAnsweredCalls || unAnsweredCalls.length === 0){
+	return res.status(404).json({msg:"No un-answered calls at the moment 😊 ", data:{success: false,
+        "error": false,
+        "status": 404} });
+}
+    return res.status(200).json({msg:"agents added contacts fetched successfully", data:{
+	success:true,
+	error: false,
+	contacts: unAnsweredCalls
+
+}});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+};
+
+const getAgentContactById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const unAnsweredCall = await noAnsweredCall.findById(id).exec();
+    if (!unAnsweredCall) {
+      return res.status(404).json({ msg: "Contact not found" });
+    }
+    return res.status(200).json({
+      msg: "Contact fetched successfully",
+      data: {
+        success: true,
+        error: false,
+        contact: unAnsweredCall
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+};
+
+
+
+const deleteMultipleContacts = async (req, res) => {
+  try {
+    const { ids } = req.params; 
+    if (!ids || !Array.isArray(ids.split(',')) || ids.split(',').length === 0) {
+      return res.status(400).json({ msg: "Invalid input: an array of IDs is required" });
+    }
+
+    const idsArray = ids.split(',');
+    const result = await noAnsweredCall.deleteMany({ _id: { $in: idsArray } }).exec();
+    return res.status(200).json({
+      msg: "Contacts deleted successfully",
+      data: {
+        success: true,
+        error: false,
+        deletedCount: result.deletedCount
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+};
+
+//deleting no answered call by id
+const deleteNoAnswerById = async (req, res) => {
+  try {
+    const { id } = req.query;
+    if (!id) {
+      return res.status(400).json({ msg: "Missing parameter: id" });
+    }
+
+    const unAnsweredCall = await noAnsweredCall.deleteOne({ _id: id });
+
+    if (unAnsweredCall.deletedCount === 0) {
+      return res.status(404).json({
+        msg: "No unanswered call found to be deleted",
+        data: {
+          success: false,
+          error: false,
+          status: 404,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      msg: "un-answered call contact deleted successfully",
+      data: {
+        success: true,
+        error: false,
+        deletedCount: unAnsweredCall.deletedCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error deleting call contact:", err.message);
+    return res.status(500).json({
+      msg: "Error deleting call contact",
+      data: {
+        success: false,
+        error: true,
+        errorMessage: err.message,
+      },
+    });
+  }
+};
+
+
 
 const index = async (req, res) => {
   const query = req.query;
@@ -427,4 +540,8 @@ module.exports = {
   deleteMany,
   getUserContacts,
   addMany,
+  getAllAgentContacts,
+  getAgentContactById,
+  deleteMultipleContacts,
+  deleteNoAnswerById
 };

@@ -40,7 +40,7 @@ const leadSchema = new mongoose.Schema({
   },
   updatedDate: {
     type: Date,
-    default: Date.now,
+   // default: Date.now,
   },
   createdDate: {
     type: Date,

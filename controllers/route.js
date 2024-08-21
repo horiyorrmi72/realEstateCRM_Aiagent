@@ -15,7 +15,7 @@ const TextMsgRoute = require("./textMsg/_routes");
 const meetingRoute = require("./meeting/_routes");
 const paymentRoute = require("./payment/_routes");
 const roleAccessRoute = require("./roleAccess/_routes");
-
+const llmcallRoute = require("./llmLeadCalls/_routes");
 //Api`s
 router.use("/contact", contactRoute);
 router.use("/property", propertyRoute);
@@ -32,5 +32,6 @@ router.use("/text-msg", TextMsgRoute);
 router.use("/meeting", meetingRoute);
 router.use("/role-access", roleAccessRoute);
 ///router.use("/role-access", roleAccessRoute);
+router.use("/llm", llmcallRoute);
 
 module.exports = router;

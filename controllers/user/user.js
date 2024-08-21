@@ -23,14 +23,14 @@ const adminRegister = async (req, res) => {
         role: "admin",
       });
 
-      console.log(user, "usersss");
+     // console.log(user, "usersss");
       // Save the user to the database
       await user.save();
       res.status(200).json({ message: "Admin created successfully" });
     }
   } catch (error) {
     res.status(500).json({ error: error });
-    console.log(error);
+   // console.log(error);
   }
 };
 
@@ -58,14 +58,14 @@ const register = async (req, res) => {
         createdDate: new Date(),
       });
 
-      console.log(user, "user to be save------------");
+     // console.log(user, "user to be save------------");
 
       // Save the user to the database
       await user.save();
       res.status(200).json({ message: "User created successfully" });
     }
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     res.status(500).json({ error });
   }
 };
@@ -161,7 +161,7 @@ const edit = async (req, res) => {
 
     res.status(200).json(result);
   } catch (err) {
-    console.error("Failed to Update User:", err);
+    //console.error("Failed to Update User:", err);
     res.status(400).json({ error: "Failed to Update User" });
   }
 };
@@ -184,7 +184,7 @@ const editEmployeeStatus = async (req, res) => {
       { $set: { deleted: updatedDeletedValue } }
     );
 
-    console.log(result);
+    //console.log(result);
     res.status(200).json(result);
   } catch (err) {
     console.error("Failed to change status :", err);
@@ -193,7 +193,7 @@ const editEmployeeStatus = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   try {
     const { email, password } = req.body;
     // Find the user by email

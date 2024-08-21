@@ -19,5 +19,8 @@ router.patch(
 );
 router.delete("/delete/:id", auth, contact.deleteData);
 router.post("/deleteMany", auth, contact.deleteMany);
-
+router.get("/getAllAgentContacts",contact.getAllAgentContacts);
+router.get("/getAgentContact/:id",contact.getAgentContactById);
+router.delete("/deleteAgentContacts/:ids", contact.deleteMultipleContacts);
+router.delete("/deleteNoAnswerById", contact.deleteNoAnswerById);
 module.exports = router;
